@@ -23,7 +23,7 @@ import CustomerLayout from "../layouts/CustomerLayout";
 import Dashboard from "../provider/Dashboard";
 import AddService from "../provider/AddService";
 import MyServices from "../provider/MyServices";
-import ServiceDetails from "../provider/ServiceDetails";
+
 import Profile from "../provider/Profile";
 
 // =======================
@@ -32,7 +32,7 @@ import Profile from "../provider/Profile";
 
 import CustomerDashboard from "../customer/Dashboard";
 import Search from "../customer/Search";
-import CustomerServiceDetails from "../customer/ServiceDetails";
+
 import MyRequests from "../customer/MyRequests";
 import CustomerProfile from "../customer/Profile";
 
@@ -95,10 +95,7 @@ function AppRoutes() {
             element={<MyServices />}
           />
 
-          <Route
-            path="service/:id"
-            element={<ServiceDetails />}
-          />
+         
 
           <Route
             path="profile"
@@ -131,10 +128,7 @@ function AppRoutes() {
             element={<Search />}
           />
 
-          <Route
-            path="service/:id"
-            element={<CustomerServiceDetails />}
-          />
+          
 
           <Route
             path="my-requests"
