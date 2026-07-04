@@ -6,7 +6,7 @@ import {
   FaTools,
 } from "react-icons/fa";
 
-import { searchServices } from "../services/customerService";
+import { searchServices } from "../Services/customerService";
 
 function Search() {
   const [searchTerm, setSearchTerm] = useState("");

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaUserCircle, FaSave } from "react-icons/fa";
-import { updateProfile } from "../services/customerService";
+import { updateProfile } from "../Services/customerService";
 
 function Profile() {
 
