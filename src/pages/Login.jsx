@@ -1,70 +1,99 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
+import { loginUser } from "../api/authApi";
 
 function Login() {
-  // 1. State ya kushika yaliyoandikwa kwenye input za email na password
+
+  const navigate = useNavigate();
+
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
 
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  // 2. Kuchukua mabadiliko ya herufi kwenye input
   const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    setCredentials({
+      ...credentials,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  // 3. Kazi ya kuingia (Login Logic) fomu ikisubmitwa
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Leta data ya mtumiaji aliyesajiliwa kutoka localStorage
-    const savedUser = JSON.parse(localStorage.getItem("registeredUser"));
+    try {
 
-    // Kama hakuna mtu aliyesajiliwa kabisa kwenye mfumo
-    if (!savedUser) {
-      alert("Hakuna akaunti iliyopatikana kwenye mfumo huu! Tafadhali jisajili kwanza.");
-      return;
-    }
+      setLoading(true);
 
-    // Kuhakiki kama email na password alizoweka zinalingana na zile za usajili
-    if (
-      credentials.email === savedUser.email &&
-      credentials.password === savedUser.password
-    ) {
-      alert(`Umeingia kwa mafanikio! Karibu ${savedUser.fullName}`);
+      const response = await loginUser(credentials);
 
-      // ANGALIA ROLE ILI KUMPELEKA DASHBOARD HUSIKA
-      if (savedUser.role === "PROVIDER") {
-        navigate("/provider"); // Inampeleka moja kwa moja kwenye Dashboard ya Provider
-      } else if (savedUser.role === "CUSTOMER") {
-        navigate("/customer"); // Inampeleka Home (au badilisha kuwa njia ya Dashboard ya Customer ukiiweka)
+      alert(response.message);
+
+      localStorage.setItem("token", response.token);
+localStorage.setItem("role", response.role);
+
+      // Redirect kulingana na role
+      switch (response.role) {
+
+        case "ADMIN":
+          navigate("/admin/dashboard");
+          break;
+
+        case "PROVIDER":
+          navigate("/provider/dashboard");
+          break;
+
+        case "CUSTOMER":
+          navigate("/customer/dashboard");
+          break;
+
+        default:
+          navigate("/");
       }
-    } else {
-      alert("Barua pepe (Email) au Nywila (Password) sio sahihi!");
+
+    } catch (error) {
+
+      alert(
+        error.response?.data?.message ||
+        "Email au Password si sahihi"
+      );
+
+    } finally {
+
+      setLoading(false);
+
     }
   };
 
   return (
     <MainLayout>
       <div className="container py-5">
-        <div className="row justify-content-center">
-          <div className="col-lg-5">
-            <div className="card shadow">
-              <div className="card-body p-4">
-                <h2 className="text-center mb-4">Login</h2>
 
-                {/* Tumeongeza onSubmit hapa */}
+        <div className="row justify-content-center">
+
+          <div className="col-lg-5">
+
+            <div className="card shadow">
+
+              <div className="card-body p-4">
+
+                <h2 className="text-center mb-4">
+                  Login
+                </h2>
+
                 <form onSubmit={handleLogin}>
+
                   <div className="mb-3">
-                    <label className="form-label">Email</label>
+                    <label>Email</label>
+
                     <input
                       type="email"
+                      name="email"
                       className="form-control"
                       placeholder="Enter your email"
-                      name="email"
                       value={credentials.email}
                       onChange={handleChange}
                       required
@@ -72,26 +101,39 @@ function Login() {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Password</label>
+                    <label>Password</label>
+
                     <input
                       type="password"
+                      name="password"
                       className="form-control"
                       placeholder="Enter your password"
-                      name="password"
                       value={credentials.password}
                       onChange={handleChange}
                       required
                     />
                   </div>
 
-                  <button className="btn btn-primary w-100" type="submit">
-                    Login
+                  <button
+                    className="btn btn-primary w-100"
+                    type="submit"
+                    disabled={loading}
+                  >
+
+                    {loading ? "Logging in..." : "Login"}
+
                   </button>
+
                 </form>
+
               </div>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
     </MainLayout>
   );

@@ -1,41 +1,47 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
+import { registerUser } from "../api/authApi";
 
 function Register() {
-  // 1. Kutengeneza state ya kuhifadhi data za form
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phoneNumber: "",
-    role: "", // Itashika CUSTOMER au PROVIDER
+    phone: "",
     password: "",
+    role: "CUSTOMER",
   });
 
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  // 2. Kazi ya kuchukua kila mabadiliko ya herufi kwenye input
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  // 3. Kazi ya kusubmit form
-  const handleSubmit = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    // Kuzuia asisumbite kama hajachagua Account Type
-    if (!formData.role) {
-      alert("Tafadhali chagua aina ya akaunti (Register As)!");
-      return;
+    try {
+      setLoading(true);
+
+      const response = await registerUser(formData);
+
+      alert(response.message);
+
+      navigate("/login");
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+        "Registration failed!"
+      );
+    } finally {
+      setLoading(false);
     }
-
-    // Kuhifadhi data kwenye localStorage (Hapa tunai-convert kuwa string)
-    localStorage.setItem("registeredUser", JSON.stringify(formData));
-
-    alert("Usajili Umefanikiwa! Sasa utapelekwa ukurasa wa Login.");
-
-    // Kumpeleka mtumiaji kwenye login page
-    navigate("/login");
   };
 
   return (
@@ -43,18 +49,22 @@ function Register() {
       <div className="container py-5">
         <div className="row justify-content-center">
           <div className="col-lg-6">
+
             <div className="card shadow">
               <div className="card-body p-4">
-                <h2 className="text-center mb-4">Create Account</h2>
 
-                {/* Tumeongeza onSubmit hapa */}
-                <form onSubmit={handleSubmit}>
+                <h2 className="text-center mb-4">
+                  Register
+                </h2>
+
+                <form onSubmit={handleRegister}>
+
                   <div className="mb-3">
-                    <label className="form-label">Full Name</label>
+                    <label>Full Name</label>
+
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="Enter full name"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
@@ -63,11 +73,11 @@ function Register() {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Email</label>
+                    <label>Email</label>
+
                     <input
                       type="email"
                       className="form-control"
-                      placeholder="Enter email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
@@ -76,39 +86,24 @@ function Register() {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Phone Number</label>
+                    <label>Phone</label>
+
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="Enter phone number"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
+                      name="phone"
+                      value={formData.phone}
                       onChange={handleChange}
                       required
                     />
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Register As</label>
-                    <select
-                      className="form-select"
-                      name="role"
-                      value={formData.role}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Select Account Type</option>
-                      <option value="CUSTOMER">Customer</option>
-                      <option value="PROVIDER">Provider</option>
-                    </select>
-                  </div>
+                    <label>Password</label>
 
-                  <div className="mb-3">
-                    <label className="form-label">Password</label>
                     <input
                       type="password"
                       className="form-control"
-                      placeholder="Create password"
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
@@ -116,12 +111,33 @@ function Register() {
                     />
                   </div>
 
-                  <button type="submit" className="btn btn-success w-100">
-                    Register
+                  <div className="mb-3">
+                    <label>Register As</label>
+
+                    <select
+                      className="form-select"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleChange}
+                    >
+                      <option value="CUSTOMER">Customer</option>
+                      <option value="PROVIDER">Provider</option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn btn-primary w-100"
+                    disabled={loading}
+                  >
+                    {loading ? "Registering..." : "Register"}
                   </button>
+
                 </form>
+
               </div>
             </div>
+
           </div>
         </div>
       </div>
